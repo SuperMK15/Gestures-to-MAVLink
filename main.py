@@ -55,6 +55,12 @@ def main():
                     elif hands_info['Right'] == 'peace_sign' and hands_info['Left'] == 'open_palm':
                         action_text = 'Fly Forwards AND Yaw Right'
                         print(action_text)
+                    elif hands_info['Left'] == 'fist' and hands_info['Right'] == 'open_palm':
+                        action_text = 'Fly Left'
+                        print(action_text)
+                    elif hands_info['Right'] == 'fist' and hands_info['Left'] == 'open_palm':
+                        action_text = 'Fly Right'
+                        print(action_text)
                     else:
                         for hand, gesture in hands_info.items():
                             if gesture == 'open_palm':
@@ -108,6 +114,10 @@ def main():
                         drone_connection.set_speed_and_yaw_rate(vx=3, vy=0, vz=0, yaw_rate=-0.1)
                     elif action_text == 'Fly Forwards AND Yaw Right':
                         drone_connection.set_speed_and_yaw_rate(vx=3, vy=0, vz=0, yaw_rate=0.1)
+                    elif action_text == 'Fly Left':
+                        drone_connection.set_speed(vx=0, vy=-3, vz=0)
+                    elif action_text == 'Fly Right':
+                        drone_connection.set_speed(vx=0, vy=3, vz=0)
                     else:
                         drone_connection.set_speed_and_yaw_rate(vx=0, vy=0, vz=0, yaw_rate=0)
 
