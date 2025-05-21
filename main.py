@@ -5,21 +5,34 @@ import time
 from modules import (
     drone,
     gestures,
+    configs,
 )
+
+drone_configs = configs.load_drone_config()
+CONNECTION_STRING = drone_configs["connection_string"]
+TAKEOFF_ALT = drone_configs["takeoff_alt"]
+TRAVEL_SPEED = drone_configs["speeds"]["travel"]
+UP_SPEED = drone_configs["speeds"]["up"]
+DOWN_SPEED = drone_configs["speeds"]["down"]
+YAW_RATE_STATIC = drone_configs["speeds"]["yaw_rate_static"]
+YAW_RATE_TRAVEL = drone_configs["speeds"]["yaw_rate_travel"]
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
+MIN_DETECTION_CONFIDENCE = 0.7
+MIN_TRACKING_CONFIDENCE = 0.7
+
 def main():
-    drone_connection = drone.Drone(connection_string='tcp:127.0.0.1:14550')
+    drone_connection = drone.Drone(connection_string=CONNECTION_STRING)
     action_text, prev_action_text = '', ''
     timestamp = time.time()
     
     cap = cv2.VideoCapture(0)
     with mp_hands.Hands(
             max_num_hands=2,
-            min_detection_confidence=0.7,
-            min_tracking_confidence=0.7) as hands:
+            min_detection_confidence=MIN_DETECTION_CONFIDENCE,
+            min_tracking_confidence=MIN_TRACKING_CONFIDENCE) as hands:
 
         while cap.isOpened():
             ret, frame = cap.read()
@@ -97,27 +110,27 @@ def main():
                 if time.time() - timestamp > 1:
                     if action_text == 'Takeoff':
                         drone_connection.arm()
-                        drone_connection.takeoff(altitude=10)
+                        drone_connection.takeoff(altitude=TAKEOFF_ALT)
                     elif action_text == 'RTL':
                         drone_connection.rtl()
                     elif action_text == 'Fly Forwards':
-                        drone_connection.set_speed(vx=3, vy=0, vz=0)
+                        drone_connection.set_speed(vx=TRAVEL_SPEED, vy=0, vz=0)
                     elif action_text == 'Fly Up':
-                        drone_connection.set_speed(vx=0, vy=0, vz=-3)
+                        drone_connection.set_speed(vx=0, vy=0, vz=-UP_SPEED)
                     elif action_text == 'Fly Down':
-                        drone_connection.set_speed(vx=0, vy=0, vz=3)
+                        drone_connection.set_speed(vx=0, vy=0, vz=DOWN_SPEED)
                     elif action_text == 'Yaw Left':
-                        drone_connection.set_yaw_rate(yaw_rate=-0.25)
+                        drone_connection.set_yaw_rate(yaw_rate=-YAW_RATE_STATIC)
                     elif action_text == 'Yaw Right':
-                        drone_connection.set_yaw_rate(yaw_rate=0.25)
+                        drone_connection.set_yaw_rate(yaw_rate=YAW_RATE_STATIC)
                     elif action_text == 'Fly Forwards AND Yaw Left':
-                        drone_connection.set_speed_and_yaw_rate(vx=3, vy=0, vz=0, yaw_rate=-0.1)
+                        drone_connection.set_speed_and_yaw_rate(vx=TRAVEL_SPEED, vy=0, vz=0, yaw_rate=-YAW_RATE_TRAVEL)
                     elif action_text == 'Fly Forwards AND Yaw Right':
-                        drone_connection.set_speed_and_yaw_rate(vx=3, vy=0, vz=0, yaw_rate=0.1)
+                        drone_connection.set_speed_and_yaw_rate(vx=TRAVEL_SPEED, vy=0, vz=0, yaw_rate=YAW_RATE_TRAVEL)
                     elif action_text == 'Fly Left':
-                        drone_connection.set_speed(vx=0, vy=-3, vz=0)
+                        drone_connection.set_speed(vx=0, vy=-TRAVEL_SPEED, vz=0)
                     elif action_text == 'Fly Right':
-                        drone_connection.set_speed(vx=0, vy=3, vz=0)
+                        drone_connection.set_speed(vx=0, vy=TRAVEL_SPEED, vz=0)
                     else:
                         drone_connection.set_speed_and_yaw_rate(vx=0, vy=0, vz=0, yaw_rate=0)
 

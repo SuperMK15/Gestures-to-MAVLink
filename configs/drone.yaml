@@ -1,0 +1,10 @@
+drone:
+  connection_string: "tcp:127.0.0.1:14550"
+  takeoff_alt: 10.0
+  speeds:
+    travel: 3.0
+    up: 2.0
+    down: 2.0
+    yaw_rate_static: 0.25
+    yaw_rate_travel: 0.1
+    
